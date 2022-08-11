@@ -1,0 +1,11 @@
+
+{
+    "name": "Viomi Robot Vacuum Cleaner SE (V-RVCLM21A)",
+    "country": ["FR", "PL", "PT"],
+    "domains": ["vacuum"],
+    "iot_class": "Local Polling",
+    "content_in_root": false,
+    "render_readme": false,
+    "zip_release": true,
+    "filename": "viomi_se.zip"
+}
