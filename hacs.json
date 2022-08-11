@@ -1,6 +1,6 @@
 
 {
-    "name": "Viomi Robot Vacuum Cleaner SE (V-RVCLM21A)",
+    "name": "Viomi Robot Vacuum Cleaner SE (V-RVCLM21A) Rooms",
     "country": ["FR", "PL", "PT"],
     "domains": ["vacuum"],
     "iot_class": "Local Polling",
