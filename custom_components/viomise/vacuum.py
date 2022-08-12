@@ -66,7 +66,9 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
 VACUUM_SERVICE_SCHEMA = vol.Schema({vol.Optional(ATTR_ENTITY_ID): cv.comp_entity_ids})
 SERVICE_CLEAN_ZONE = "xiaomi_clean_zone"
 SERVICE_CLEAN_ROOM = "xiaomi_clean_room"
+SERVICE_GOTO_ROOM = "xiaomi_goto_room"
 SERVICE_CLEAN_POINT = "xiaomi_clean_point"
+ATTR_ROOM = "room"
 ATTR_ZONE_ARRAY = "zone"
 ATTR_ZONE_REPEATER = "repeats"
 ATTR_POINT = "point"
@@ -101,6 +103,11 @@ SERVICE_SCHEMA_CLEAN_ROOM = VACUUM_SERVICE_SCHEMA.extend(
         ),
     }
 )
+SERVICE_SCHEMA_GOTO_ROOM = VACUUM_SERVICE_SCHEMA.extend(
+    {
+        vol.Required(ATTR_ROOM): vol.Coerce(str),
+    }
+)
 SERVICE_SCHEMA_CLEAN_POINT = VACUUM_SERVICE_SCHEMA.extend(
     {
         vol.Required(ATTR_POINT): vol.All(
@@ -116,6 +123,10 @@ SERVICE_TO_METHOD = {
     SERVICE_CLEAN_ROOM: {
         "method": "async_clean_room",
         "schema": SERVICE_SCHEMA_CLEAN_ROOM,
+    },
+    SERVICE_GOTO_ROOM: {
+        "method": "async_goto_room",
+        "schema": SERVICE_SCHEMA_GOTO_ROOM,
     },
     SERVICE_CLEAN_POINT: {
         "method": "async_clean_point",
@@ -603,6 +614,14 @@ class MiroboVacuum2(StateVacuumEntity):
 
         self._vacuum_rooms.cleanRooms(room_ids)
         # await self.hass.async_add_executor_job(self._vacuum_rooms.cleanRooms, room_ids)
+
+        return True
+
+    async def async_goto_room(self, room):
+        """Goto selected room than stop."""
+
+        # self._vacuum_rooms.gotoRooms(room)
+        await self.hass.async_add_executor_job(self._vacuum_rooms.gotoRooms, room)
 
         return True
 

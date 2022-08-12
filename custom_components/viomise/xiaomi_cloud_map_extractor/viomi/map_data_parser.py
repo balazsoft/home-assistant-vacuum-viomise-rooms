@@ -54,6 +54,7 @@ class MapDataParserViomi(MapDataParser):
         texts: Texts,
         sizes: Sizes,
         image_config: ImageConfig,
+        b_rooms: bool,
         *args,
         **kwargs,
     ) -> MapData:
@@ -74,7 +75,7 @@ class MapDataParserViomi(MapDataParser):
                 map_data.rooms,
                 map_data.cleaned_rooms,
             ) = MapDataParserViomi.parse_image(
-                buf, colors, image_config, DRAWABLE_CLEANED_AREA in drawables
+                buf, colors, image_config, DRAWABLE_CLEANED_AREA in drawables, b_rooms
             )
 
         if feature_flags & MapDataParserViomi.FEATURE_HISTORY != 0:
@@ -193,6 +194,7 @@ class MapDataParserViomi(MapDataParser):
         colors: Colors,
         image_config: ImageConfig,
         draw_cleaned_area: bool,
+        b_rooms: bool,
     ) -> Tuple[ImageData, Dict[int, Room], Set[int]]:
         buf.skip("unknown1", 0x08)
         image_top = 0
@@ -222,7 +224,13 @@ class MapDataParserViomi(MapDataParser):
             image_config[CONF_TRIM][CONF_BOTTOM] = 0
         buf.mark_as_image_beginning()
         image, rooms_raw, cleaned_areas, cleaned_areas_layer = ImageHandlerViomi.parse(
-            buf, image_width, image_height, colors, image_config, draw_cleaned_area
+            buf,
+            image_width,
+            image_height,
+            colors,
+            image_config,
+            draw_cleaned_area,
+            b_rooms,
         )
         _LOGGER.debug(
             "img: number of rooms: %d, numbers: %s", len(rooms_raw), rooms_raw.keys()
@@ -294,7 +302,10 @@ class MapDataParserViomi(MapDataParser):
             p3 = MapDataParserViomi.parse_position(buf, "p3")
             p4 = MapDataParserViomi.parse_position(buf, "p4")
             buf.skip("area.unknown2", 48)
-            zones.append(Zone(p1.x, p1.y, p3.x, p3.y))
+            try:
+                zones.append(Zone(p1.x, p1.y, p3.x, p3.y))
+            except:
+                pass
         return zones
 
     @staticmethod

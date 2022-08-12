@@ -404,7 +404,8 @@ class ImageHandler:
                 if font_file is not None and font_size > 0:
                     font = ImageFont.truetype(font_file, font_size)
             except OSError:
-                _LOGGER.warning("Unable to find font file: %s", font_file)
+                # _LOGGER.warning("Unable to find font file: %s", font_file)
+                pass
             except ImportError:
                 _LOGGER.warning("Unable to open font: %s", font_file)
             finally:

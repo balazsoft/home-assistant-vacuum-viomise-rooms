@@ -45,7 +45,8 @@ class XiaomiCloudConnector:
             response = self._session.get(
                 url, headers=headers, cookies=cookies, timeout=10
             )
-        except:
+        except Exception as exc:
+            _LOGGER.error(exc)
             response = None
         successful = (
             response is not None

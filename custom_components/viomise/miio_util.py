@@ -105,8 +105,8 @@ class ViomiSE3Rooms:
         if self.checkConnection() == False:
             return []
 
-        if self.rooms == None:
-            self.getPosition()
+        if self.rooms == None or len(self.rooms) == 0:
+            self.getPosition(b_rooms=True)
 
         ret = []
 
@@ -124,7 +124,7 @@ class ViomiSE3Rooms:
 
         return ret
 
-    def getPosition(self):
+    def getPosition(self, b_rooms=False):
         counter = 10
         map_name = self._handle_map_name(counter)
         response = self._device.get_raw_map_data(map_name)
@@ -157,8 +157,23 @@ class ViomiSE3Rooms:
             "trim": {"top": 10, "bottom": 20, "left": 30, "right": 40},
         }
         map_data = MapDataParserViomi.parse(
-            unzipped, colors, drawables, texts, sizes, image_config
+            unzipped, colors, drawables, texts, sizes, image_config, b_rooms
         )
+        # self.rooms = map_data.rooms
+
+        # Fix Bin room coords
+        for i in map_data.rooms.keys():
+            room = map_data.rooms[i]
+
+            if room.name == "Bin":
+                # old ('Bin', 12, -2.0, -3.7, -0.15, -1.65)
+                # new ('Bin', 12, -1.0, -2.2, -0.15, -1.5)
+                # newRooms.append((i[0], i[1], i[2] + 1, i[3] + 1.5, i[4], i[5] + 0.15))
+                room.x0 += 1
+                room.y0 += 1.5
+                room.x1 += 0
+                room.y1 += 0.15
+                break
         self.rooms = map_data.rooms
         return (map_data.vacuum_position.x, map_data.vacuum_position.y)
 
@@ -225,6 +240,24 @@ class ViomiSE3Rooms:
     def cleanRooms(self, rooms):
         self.vac.start_with_room(rooms)
 
+    def gotoRooms(self, room):
+        self.stop()
+        self.cleanRooms([room])
+
+        for i in self.rooms:
+            if self.rooms[i].name == room:
+                i = self.rooms[i]
+                room_coords = [i.x0, i.y0, i.x1, i.y1]
+                break
+
+        while True:
+            x, y = self.getPosition()
+            _LOGGER.info("%f, %f" % (x, y))
+            if self._findPoint(*room_coords, x, y):
+                break
+            time.sleep(0.5)
+        self.stop()
+
     def stop(self):
         self.vac.stop()
 
@@ -236,6 +269,12 @@ class ViomiSE3Rooms:
 
     def info(self):
         return self.vac.send("miIO.info")
+
+    def _findPoint(self, x1, y1, x2, y2, x, y):
+        if x >= x1 and x <= x2 and y >= y1 and y <= y2:
+            return True
+        else:
+            return False
 
 
 # class ViomiSE3Map():
