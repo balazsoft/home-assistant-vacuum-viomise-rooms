@@ -127,28 +127,30 @@ class ViomiSE3Rooms:
     def getPosition(self, b_rooms=False):
         counter = 10
         map_name = self._handle_map_name(counter)
+        _LOGGER.debug("map_name: %s" % str(map_name))
+
         response = self._device.get_raw_map_data(map_name)
 
         unzipped = zlib.decompress(response)
         colors = [1]
         drawables = [1]
         texts = [
-            {
-                "text": "Room 1",
-                "x": 25,
-                "y": 25,
-                "color": (125, 20, 213),
-                "font": "FreeSans.ttf",
-                "font_size": 25,
-            },
-            {
-                "text": "Room 2",
-                "x": 25,
-                "y": 75,
-                "color": (125, 20, 213),
-                "font": "FreeSans.ttf",
-                "font_size": 25,
-            },
+            # {
+            #     "text": "Room 1",
+            #     "x": 25,
+            #     "y": 25,
+            #     "color": (125, 20, 213),
+            #     "font": "FreeSans.ttf",
+            #     "font_size": 25,
+            # },
+            # {
+            #     "text": "Room 2",
+            #     "x": 25,
+            #     "y": 75,
+            #     "color": (125, 20, 213),
+            #     "font": "FreeSans.ttf",
+            #     "font_size": 25,
+            # },
         ]
         sizes = [1]
         image_config = {
@@ -161,19 +163,20 @@ class ViomiSE3Rooms:
         )
         # self.rooms = map_data.rooms
 
+        if b_rooms:
         # Fix Bin room coords
-        for i in map_data.rooms.keys():
-            room = map_data.rooms[i]
+            # for i in map_data.rooms.keys():
+            #     room = map_data.rooms[i]
 
-            if room.name == "Bin":
-                # old ('Bin', 12, -2.0, -3.7, -0.15, -1.65)
-                # new ('Bin', 12, -1.0, -2.2, -0.15, -1.5)
-                # newRooms.append((i[0], i[1], i[2] + 1, i[3] + 1.5, i[4], i[5] + 0.15))
-                room.x0 += 1
-                room.y0 += 1.5
-                room.x1 += 0
-                room.y1 += 0.15
-                break
+            #     if room.name == "Bin":
+            #         # old ('Bin', 12, -2.0, -3.7, -0.15, -1.65)
+            #         # new ('Bin', 12, -1.0, -2.2, -0.15, -1.5)
+            #         # newRooms.append((i[0], i[1], i[2] + 1, i[3] + 1.5, i[4], i[5] + 0.15))
+            #         room.x0 += 1
+            #         room.y0 += 1.5
+            #         room.x1 += 0
+            #         room.y1 += 0.15
+            #         break
         self.rooms = map_data.rooms
         return (map_data.vacuum_position.x, map_data.vacuum_position.y)
 
@@ -243,6 +246,10 @@ class ViomiSE3Rooms:
     def gotoRooms(self, room):
         self.stop()
         self.cleanRooms([room])
+        _LOGGER.debug("gotoRooms called")
+        _LOGGER.debug("Rooms: %s" % str(self.rooms))
+
+        room_coords = None
 
         for i in self.rooms:
             if self.rooms[i].name == room:
@@ -252,10 +259,14 @@ class ViomiSE3Rooms:
 
         while True:
             x, y = self.getPosition()
+            # _LOGGER.debug("Rooms2: %s" % str(self.rooms))
             _LOGGER.info("%f, %f" % (x, y))
             if self._findPoint(*room_coords, x, y):
                 break
             time.sleep(0.5)
+
+        _LOGGER.debug("gotoRooms ended")
+
         self.stop()
 
     def stop(self):
