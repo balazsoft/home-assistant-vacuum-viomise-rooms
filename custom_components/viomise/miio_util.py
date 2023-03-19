@@ -177,7 +177,7 @@ class ViomiSE3Rooms:
             #         room.x1 += 0
             #         room.y1 += 0.15
             #         break
-        self.rooms = map_data.rooms
+            self.rooms = map_data.rooms
         return (map_data.vacuum_position.x, map_data.vacuum_position.y)
 
     def _handle_map_name(self, counter):
