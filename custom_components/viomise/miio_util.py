@@ -210,10 +210,11 @@ class ViomiSE3Rooms:
         except DeviceException as exc:
             orgIP = self.vac.ip
             toReplace = 'ip = "{0}"'
-            if str(exc).find("Unable to discover the device") == 0:
+            if str(exc).find("Unable to discover the device") == 0 or str(exc).find("No response from the device") == 0:
                 self.token, self.ip = token_extractor.GetTokenAndIP(
                     user, password, country
                 )
+                _LOGGER.error("*** Vac info failed please check these in config: token: %s, ip: %s", str(self.token), str(self.ip))
                 self.vac = miio.ViomiVacuum(self.ip, self.token, debug=0)
                 self.vac.info()
 
