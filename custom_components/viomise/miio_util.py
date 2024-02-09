@@ -246,9 +246,9 @@ class ViomiSE3Rooms:
 
     def gotoRooms(self, room):
         self.stop()
-        self.cleanRooms([room])
         _LOGGER.debug("gotoRooms called")
         _LOGGER.debug("Rooms: %s" % str(self.rooms))
+        self.cleanRooms([room])
 
         room_coords = None
 
